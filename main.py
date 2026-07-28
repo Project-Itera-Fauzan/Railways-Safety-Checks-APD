@@ -66,7 +66,7 @@ class ChecklistEntry(Base):
     __tablename__ = "checklist_entries"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    timestamp = Column(DateTime, default=lambda: datetime.utcnow())
     technician = Column(String(100), nullable=False)
     location = Column(String(200), nullable=False)
 
@@ -484,7 +484,7 @@ def create_checklist(payload: ChecklistIn):
     db = SessionLocal()
     try:
         entry = ChecklistEntry(
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.utcnow(),
             technician=payload.technician,
             location=payload.location,
             helmet=payload.helmet,
@@ -538,7 +538,10 @@ def get_stats():
 
     db = SessionLocal()
     try:
-        now = datetime.now(timezone.utc)
+        # Kolom timestamp di MySQL tersimpan sebagai naive datetime (tanpa tzinfo),
+        # jadi semua perbandingan di Python juga harus pakai naive datetime supaya
+        # tidak error "can't compare offset-naive and offset-aware datetimes".
+        now = datetime.utcnow()
         since_14d = now - timedelta(days=14)
 
         all_entries = (
@@ -618,4 +621,3 @@ def get_stats():
         }
     finally:
         db.close()
-
