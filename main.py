@@ -24,6 +24,7 @@ from sqlalchemy import (
     create_engine,
 )
 from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.dialects.mysql import LONGTEXT
 
 
 # ============================================================
@@ -81,7 +82,7 @@ class ChecklistEntry(Base):
     approved = Column(Boolean, default=False)
 
     # Foto hasil capture, disimpan sebagai base64 data URL (mis. "data:image/jpeg;base64,...")
-    image = Column(Text, nullable=True)
+    image = Column(LONGTEXT, nullable=True)
 
 
 def get_db():
