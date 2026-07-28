@@ -20,6 +20,7 @@ from sqlalchemy import (
     Float,
     Integer,
     String,
+    Text,
     create_engine,
 )
 from sqlalchemy.orm import declarative_base, sessionmaker
@@ -78,6 +79,9 @@ class ChecklistEntry(Base):
     conf_shoes = Column(Float, default=0.0)
 
     approved = Column(Boolean, default=False)
+
+    # Foto hasil capture, disimpan sebagai base64 data URL (mis. "data:image/jpeg;base64,...")
+    image = Column(Text, nullable=True)
 
 
 def get_db():
@@ -443,6 +447,7 @@ class ChecklistIn(BaseModel):
     conf_helmet: float = 0.0
     conf_vest: float = 0.0
     conf_shoes: float = 0.0
+    image: str | None = None
 
 
 def entry_to_dict(entry: "ChecklistEntry") -> dict:
@@ -462,6 +467,7 @@ def entry_to_dict(entry: "ChecklistEntry") -> dict:
             "shoes": entry.conf_shoes,
         },
         "approved": bool(entry.approved),
+        "image": entry.image,
     }
 
 
@@ -488,6 +494,7 @@ def create_checklist(payload: ChecklistIn):
             conf_vest=payload.conf_vest,
             conf_shoes=payload.conf_shoes,
             approved=approved,
+            image=payload.image,
         )
         db.add(entry)
         db.commit()
