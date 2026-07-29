@@ -449,6 +449,9 @@ class ChecklistIn(BaseModel):
     conf_vest: float = 0.0
     conf_shoes: float = 0.0
     image: str | None = None
+    # Kalau diisi (True/False), keputusan diterima/ditolak dari petugas ini
+    # yang dipakai (override), menggantikan hasil otomatis helmet&&vest&&shoes.
+    override_approved: bool | None = None
 
 
 def entry_to_dict(entry: "ChecklistEntry") -> dict:
@@ -480,7 +483,10 @@ def create_checklist(payload: ChecklistIn):
             detail="Database belum dikonfigurasi. Set environment variable DATABASE_URL di Railway.",
         )
 
-    approved = payload.helmet and payload.vest and payload.shoes
+    if payload.override_approved is not None:
+        approved = payload.override_approved
+    else:
+        approved = payload.helmet and payload.vest and payload.shoes
 
     db = SessionLocal()
     try:
